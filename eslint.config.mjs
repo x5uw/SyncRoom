@@ -1,3 +1,11 @@
+/**
+ * ESLint configuration for a Next.js project using the "Flat" config format.
+ * This file sets up the core-web-vitals rules from Next.js and ensures
+ * compatibility with the legacy @eslint/eslintrc shareable configs.
+ * 
+ * ESLint is used to identify and detect problems in JavaScript code.
+ */
+
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { FlatCompat } from "@eslint/eslintrc";
