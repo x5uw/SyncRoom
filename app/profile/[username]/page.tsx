@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import LinkSpotifyButton from "@/components/LinkSpotifyButton";
 // import { supabaseBrowser } from '@/lib/supabase/browser'; // Uncomment when ready
 
 /* Once You're Ready to Use Supabase
@@ -16,7 +17,7 @@ Replace console.log() in handleUpdate() with a call to:
 ts
 Copy
 Edit
-await supabase.from('profiles').update({...}).eq('id', user.id); */
+await supabase.from('profiles').update({...}).eq('id', user.id); //*/
 
 export default function ProfileSettingsPage() {
   // Scaffolded state for profile fields
@@ -111,6 +112,26 @@ export default function ProfileSettingsPage() {
           </form>
         </CardContent>
       </Card>
+      {/* Spotify Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">Spotify Information</CardTitle>
+          <CardContent>
+            <div>
+              <label htmlFor="spotify-username" className="block mb-2">
+                Username
+              </label>
+            </div>
+          </CardContent>
+        </CardHeader>
+      </Card>
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold mb-4">Connect Your Spotify</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Link your Spotify account to sync your favorite tracks and playlists.
+        </p>
+      </div>
+      <LinkSpotifyButton/>
     </div>
   );
 }

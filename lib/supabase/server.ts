@@ -1,3 +1,17 @@
+/**
+ * lib/supabase/server.ts
+ *
+ * Initializes and returns a Supabase client for **Server Components, Route Handlers, 
+ * and Server Actions** (all server-side). 
+ *
+ * - This uses `createServerActionClient` from `@supabase/ssr`, which automatically 
+ *   binds to Next.js’s `cookies` API so that:
+ *     • Supabase can read the existing "supabase-auth-token" cookie.
+ *     • After an OAuth flow, Supabase can set the session cookie on the response.
+ * - Use this in any file that runs on the server (e.g., Route Handlers under app/api/…,
+ *   or Server Components/Actions). 
+ */
+
 "use server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
@@ -7,8 +21,8 @@ export const supabaseServer = () => {
 	const cookieStore = cookies();
 
 	return createServerClient<Database>(
-		process.env.NEXT_PUBLIC_SUPABASE_URL!,
-		process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+		process.env.NEXT_PUBLIC_SUPABASE_URL!,				// Ensure this is defined in your .env file
+		process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,			// Ensure this is defined in your .env file
 		{
 			cookies: {
 				get(name: string) {
