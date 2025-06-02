@@ -8,7 +8,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import LoginLogoutButton from "./LoginLogout"; // optional reusable client button
 
 async function Sidebar() {
-  const supabase = supabaseServer();
+  const supabase = await supabaseServer();
   const {
     data: { user },
   } = await supabase.auth.getUser();
