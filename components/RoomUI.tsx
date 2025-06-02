@@ -1,19 +1,34 @@
-// File: components/RoomUI.tsx
+/*
+ * Author: Hyobin Yook
+ * 
+ * RoomUI.tsx is an UI component that renders main 'Room' view for listenrs.
+ * It consist of a screen, room information panel, and live chat panel.
+ * 
+ * React hooks and event handlers function entirely in the browser ("use client")
+ * 
+ * NOTE: like_count and favorite_count may be added.
+*/
 "use client";
 
-import Link from "next/link";
-import { HeartIcon, Heart as HeartIconSolid } from "lucide-react";
-import { useState } from "react";
-import ChatCard from "./ChatCard";
+import Link from "next/link";                                          // Navigations between pages without full-reload (Dj profile load)
+import { useState } from "react";                                      // React hook (e.g. room favorited state)
+import ChatCard from "./ChatCard";                                     // ChatCard to be rendered on the page
+import FavoriteButton from "./ui/FavoriteButton";
+import LikeButton from "./ui/LikeButton";
 
-interface RoomRow {
+
+interface RoomRow {     // Room data to be received as a prop
     id: string;
     name: string;
     description: string | null;
     host_id: string;
     host_name: string | null;
     listener_count: number;
+    // TODO: 
+    // like_count: number;
+    // favorite_cout: number;
     is_favorited_by_current_user: boolean;
+    is_liked_by_by_current_user: boolean;
     stream_url: string | null;
 }
 
@@ -22,88 +37,77 @@ interface RoomUIProps {
 }
 
 export default function RoomUI({ room }: RoomUIProps) {
-    const [favorited, setFavorited] = useState(room.is_favorited_by_current_user);
-    const [volume, setVolume] = useState(50);
 
-    function toggleFavorite() {
-        setFavorited((prev) => !prev);
+    function onHeartToggle(newValue: boolean) {
+        console.log(`Room ${room.id} favorited=`, newValue);
+        // TODO: Maybe callback to inform the backend/database? 
+        //  await fetch('api/rooms/${room.id}/favorite'. {POST}, JSON.stringify({favorited:nnewvalue})),});
     }
 
-    function handleVolumeChange(e: React.ChangeEvent<HTMLInputElement>) {
-        setVolume(Number(e.target.value));
+    function onLikeToggle(newValue: boolean) {
+        console.log(`Room ${room.id} liked =`, newValue);
+        // TODO: Maybe callback to inform the database
     }
 
     return (
-        <div className="flex flex-1">
-            {/* ───────── Left Pane (2/3 width) ───────── */}
-            <div className="w-2/3 flex flex-col bg-gray-50">
-                {/* Live Video Section */}
-                <div className="w-full bg-black flex items-center justify-center py-6">
-                    <div className="w-full max-w-lg aspect-video">
+        <div className="flex flex-col h-screen bg-gray-900">
+            {/* ─────────── Main Content (fills remaining height) ─────────── */}
+            <div className="flex flex-1 overflow-hidden p-4 space-x-4 bg-gray-900">
+                {/* ─────────── Left Pane (2/3 width) ─────────── */}
+                <div className="flex flex-col w-2/3 space-y-4">
+                    {/* ─────────── “Screen” / Video Embed ─────────── */}
+                    <div className="bg-black rounded-lg overflow-hidden aspect-video">
                         <iframe
                             className="w-full h-full"
-                            src={room.stream_url || "https://youtu.be/ouuPSxE1hK4?si=https://youtu.be/XqZsoesa55w?si=7QfVOzcj9sQF7SoK&t=26"}
+                            src={
+                                room.stream_url ||
+                                "https://youtu.be/ouuPSxE1hK4?si=https://youtu.be/XqZsoesa55w?si=7QfVOzcj9sQF7SoK&t=26"
+                            }
                             title="Embedded video player"
                             allow="autoplay; encrypted-media; picture-in-picture"
                             allowFullScreen
                         />
                     </div>
-                </div>
 
-                {/* Room Info Panel */}
-                <div className="w-full border-t border-gray-200 bg-white p-4 flex justify-between items-start">
-                    <div>
-                        <Link
-                            href={`/profile/${room.host_id}`}
-                            className="text-lg font-semibold text-primary hover:underline"
-                        >
-                            {room.host_name || "Unknown Host"}
-                        </Link>
-                        <div className="mt-1">
-                            <h2 className="text-2xl font-bold">{room.name}</h2>
+                    {/* ─────────── Room Info Panel ─────────── */}
+                    <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 flex justify-between items-start">
+                        {/* ─── Left side: room name, host name, description ─── */}
+                        <div className="space-y-1">
+                            <h1 className="text-2xl font-bold text-white">{room.name}</h1>
+                            <Link
+                                href={`/profile/${room.host_id}`}
+                                className="block text-lg font-medium text-blue-400 hover:underline"
+                            >
+                                {room.host_name || "Unknown Host"}
+                            </Link>
                             {room.description && (
-                                <p className="mt-1 text-gray-600">{room.description}</p>
+                                <p className="text-sm italic text-gray-300">{room.description}</p>
                             )}
-                            <p className="mt-1 text-sm text-gray-500">
+                        </div>
+
+                        {/* ─── Right side: listener count + buttons ─── */}
+                        <div className="flex items-center space-x-4">
+                            <span className="text-sm font-medium text-gray-300">
                                 {room.listener_count} listeners
-                            </p>
+                            </span>
+
+                            <FavoriteButton
+                                initialFavorited={room.is_favorited_by_current_user}
+                                onToggle={onHeartToggle}
+                            />
+
+                            <LikeButton
+                                initialLiked={room.is_liked_by_by_current_user}
+                                onToggle={onLikeToggle}
+                            />
                         </div>
                     </div>
-
-                    <div className="flex items-center space-x-4">
-                        {/* Volume Slider */}
-                        <label className="flex items-center space-x-2">
-                            <span className="text-sm text-gray-700">Vol</span>
-                            <input
-                                type="range"
-                                min={0}
-                                max={100}
-                                value={volume}
-                                onChange={handleVolumeChange}
-                                className="h-2 w-28 accent-primary"
-                            />
-                        </label>
-
-                        {/* Favorite Toggle */}
-                        <button
-                            onClick={toggleFavorite}
-                            className="p-2 rounded-full hover:bg-gray-100 active:scale-95 transition"
-                            aria-label={favorited ? "Unfavorite" : "Favorite"}
-                        >
-                            {favorited ? (
-                                <HeartIconSolid className="h-6 w-6 text-red-500" />
-                            ) : (
-                                <HeartIcon className="h-6 w-6 text-gray-500" />
-                            )}
-                        </button>
-                    </div>
                 </div>
-            </div>
 
-            {/* ───────── Right Pane (1/3 width) ───────── */}
-            <div className="w-1/3 flex items-start justify-center p-6">
-                {/* Import the ChatCard component here */}
-                <ChatCard />
+                {/* ─────────── Right Pane: ChatCard (1/3 width) ─────────── */}
+                <div className="flex-1 bg-gray-800 rounded-lg border border-gray-700 overflow-auto">
+                    <ChatCard />
+                </div>
             </div>
         </div>
     );
