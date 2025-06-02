@@ -1,4 +1,4 @@
-// File: SyncRoom/app/room/test-room/page.tsx
+// File: app/room/[id]/page.tsx
 
 import NavBar from "@/components/NavBar";
 import RoomUI from "@/components/RoomUI"; // your existing UI component
@@ -13,6 +13,7 @@ export default function TestRoomPage() {
         host_name: "Test Host",
         listener_count: 42,
         is_favorited_by_current_user: false,
+        is_liked_by_by_current_user: false, // Added missing property
         stream_url: null, // or a real video URL if you want
         // …any other fields RoomUI expects (e.g. created_at if used)…
     };

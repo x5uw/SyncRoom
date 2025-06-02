@@ -8,13 +8,21 @@
  * 
  * NOTE: like_count and favorite_count may be added.
 */
+
+declare const Spotify: any; // quick and dirty fix to avoid TypeScript errors, sorry for this, maybe we can fix this later -Manuel
+
 "use client";
 
+
+
+
 import Link from "next/link";                                          // Navigations between pages without full-reload (Dj profile load)
-import { useState } from "react";                                      // React hook (e.g. room favorited state)
+import { useEffect, useState } from "react";                           // React hook (e.g. room favorited state)
 import ChatCard from "./ChatCard";                                     // ChatCard to be rendered on the page
 import FavoriteButton from "./ui/FavoriteButton";
 import LikeButton from "./ui/LikeButton";
+import { supabaseBrowser } from "@/lib/supabase/browser";             // Supabase client for browser
+import type { SyncPacket } from "@/lib/types/sync";                   // Type for sync packet, used for syncing playback state
 
 
 interface RoomRow {     // Room data to be received as a prop
@@ -34,9 +42,113 @@ interface RoomRow {     // Room data to be received as a prop
 
 interface RoomUIProps {
     room: RoomRow;
+    isHost?: boolean;  // Optional prop to indicate if the user is the host
 }
 
-export default function RoomUI({ room }: RoomUIProps) {
+export default function RoomUI({ room, isHost = false}: RoomUIProps) {
+    const supabase = supabaseBrowser();                 
+    const [player, setPlayer] = useState<any>(); // NEW  // FIXME: WILL NEED TO COME BACK AND FIX TO OFFICIAL SPOTIFY WEB API PLAYER
+
+  /* ─────────── DJ: broadcast heartbeat every 10 s ─────────── */
+  useEffect(() => {
+    if (!isHost) return;
+
+    const interval = setInterval(async () => {
+      const s = await player.getCurrentState();
+      if (!s) return;
+
+      const packet = {
+        //DUMMY PACKET
+        type: "sync",
+        track_uri: "spotify:track:dummy",
+        position_ms: 0,
+        paused: false,
+        ts: Date.now(),
+        
+        //type: "sync",
+        //track_uri: s.track_window.current_track.uri,
+        //position_ms: s.position,
+        //paused: s.paused,
+        //ts: Date.now(),
+      };
+
+      await fetch(`/api/room/${room.id}/sync`, {           // our service-role endpoint
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(packet),
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isHost, room.id]);
+
+  /* ─────────── Listener: subscribe to Realtime ─────────── */
+  useEffect(() => {
+    if (isHost) return;                   // DJ doesn't need listener logic
+    const channel = supabase
+      .channel(`room:${room.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "rooms_sync",
+          filter: `room_id=eq.${room.id}`,
+        },
+        (payload) => {
+          console.log("🔔 realtime payload:", payload);   // <-- ADD THIS
+          const packet = payload.new.payload as SyncPacket;
+          applySync(packet);
+      }
+    )
+  .subscribe();
+
+    return () => {
+        supabase.removeChannel(channel).catch(console.error);
+    };
+  }, [isHost, room.id, player, supabase]);
+
+  /* ─────────── applySync helper ─────────── */
+  async function applySync(packet: SyncPacket) {
+    if (!player) return;
+    const sdkState = await player.getCurrentState();
+    if (!sdkState) return;
+
+    const networkLatency = (Date.now() - packet.ts) / 2;
+    const expectedPos = packet.position_ms + networkLatency;
+    const drift = Math.abs(sdkState.position - expectedPos);
+
+    // If drift > 750 ms, ask backend to seek
+    if (drift > 750) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      await fetch("/api/spotify/player/seek", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.provider_token}`,
+        },
+        body: JSON.stringify({ position_ms: expectedPos }),
+      });
+    }
+
+    // Mirror play/pause state
+    if (sdkState.paused !== packet.paused) {
+      const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+      await fetch(
+        `/api/spotify/player/${packet.paused ? "pause" : "play"}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${session.provider_token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+  }
+
 
     function onHeartToggle(newValue: boolean) {
         console.log(`Room ${room.id} favorited=`, newValue);
