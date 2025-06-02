@@ -1,3 +1,7 @@
+/**
+ * auth/callback/route.ts
+ */
+
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { type CookieOptions, createServerClient } from "@supabase/ssr";
@@ -27,6 +31,26 @@ export async function GET(request: Request) {
 				},
 			}
 		);
+
+		//FIXME: This may be leading to error page when using auth code flow for linking spotify
+		// May need to replace with:
+		/**
+		 * 
+			// it redirected to this route. We just need to verify there’s a session now:
+			const {
+				data: { session },
+				error,
+			} = await supabase.auth.getSession();
+
+			if (error || !session) {
+				// No valid session → go to your error page
+				return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+			}
+
+			// Session is valid → send the user “home” (or to whatever “next” was)
+			return NextResponse.redirect(`${origin}${next}`);
+		 */
+
 		const { error } = await supabase.auth.exchangeCodeForSession(code);
 		if (!error) {
 			return NextResponse.redirect(`${origin}${next}`);
