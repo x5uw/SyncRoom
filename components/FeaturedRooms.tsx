@@ -1,87 +1,51 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-type Room = {
-  id: string;
+interface FeaturedRoom {
+  room_id: string;  // the UUID primary key of the room in your DB
   name: string;
-  host: string;
-  currentTrack: string;
-  listenerCount: number;
-};
+  description: string;
+  // …maybe join_id, host, etc.
+}
 
-const featuredRooms: Room[] = [
+const featuredRooms: FeaturedRoom[] = [
   {
-    id: "room1",
+    room_id: "a1b2c3d4-e5f6-…",
     name: "Indie Vibes",
-    host: "Host 1",
-    currentTrack: "Track1",
-    listenerCount: 49,
+    description: "Chill indie hits all night",
   },
   {
-    id: "room2",
-    name: "Chill Hits",
-    host: "Host 2",
-    currentTrack: "Track2",
-    listenerCount: 62,
-  },
-  {
-    id: "room3",
-    name: "Synthwave Room",
-    host: "Host 3",
-    currentTrack: "Track3",
-    listenerCount: 63,
-  },
-  {
-    id: "room4",
-    name: "Jazz & Rain",
-    host: "Host 4",
-    currentTrack: "Track4",
-    listenerCount: 25,
-  },
-  {
-    id: "room5",
-    name: "Afrobeats Central",
-    host: "Host 5",
-    currentTrack: "Track5",
-    listenerCount: 40,
-  },
-  {
-    id: "room6",
-    name: "EDM",
-    host: "Host 6",
-    currentTrack: "Track6",
-    listenerCount: 51,
+    room_id: "f6e5d4c3-b2a1-…",
+    name: "Late Night Loops",
+    description: "Lo-fi beats for late coding sessions",
   },
 ];
 
 export default function FeaturedRooms() {
+  const router = useRouter();
+
   return (
-    <div className="mb-6">
-      <h2 className="text-xl font-semibold mb-4">Featured Rooms</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {featuredRooms.map((room) => (
-          <div
-            key={room.id}
-            className="border p-4 rounded-md shadow-sm flex flex-col justify-between"
+    <div className="space-y-4">
+      {featuredRooms.map((room) => (
+        <div key={room.room_id} className="p-4 border rounded">
+          <h3 className="text-lg font-semibold">{room.name}</h3>
+          <p className="text-sm text-muted-foreground">
+            {room.description}
+          </p>
+          <Button
+            onClick={() => {
+              // If you already know room_id, just push directly:
+              router.push(`/room/${room.room_id}`);
+            }}
+            className="mt-2"
           >
-            <div>
-              <h3 className="text-lg font-medium">{room.name}</h3>
-              <p className="text-sm text-muted-foreground">Host: {room.host}</p>
-              <p className="text-sm mt-1">🎵 {room.currentTrack}</p>
-              <p className="text-sm mt-1">{room.listenerCount} listeners</p>
-            </div>
-            <div className="mt-4">
-              <Link href={`/room/${room.id}`}>
-                <Button variant="default" className="w-full">
-                  Join
-                </Button>
-              </Link>
-            </div>
-          </div>
-        ))}
-      </div>
+            Join
+          </Button>
+        </div>
+      ))}
     </div>
   );
 }

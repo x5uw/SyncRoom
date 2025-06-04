@@ -102,3 +102,31 @@ export async function createRoom({
         `Could not generate a unique join_id after ${MAX_ATTEMPTS} attempts. Please try again.`
     );
 }
+
+/**
+ * Given a 6-character join_id, look up the corresponding room_id.
+ * If found, return room_id. If not, throw an Error.
+ */
+export async function getRoomIdByJoinId(joinId: string): Promise<string> {
+    const supabase = supabaseBrowser();
+
+    // Query the 'rooms' table where join_id = provided joinId
+    const { data, error } = await supabase
+        .from("rooms")
+        .select("room_id")
+        .eq("join_id", joinId)
+        .single();
+
+    if (error) {
+        // If no row is found, Supabase still returns error.code = "PGRST116",
+        // or data = null. We treat "not found" as a user‐facing error.
+        throw new Error(
+            error.code === "PGRST116"
+                ? "No room with that code."
+                : error.message
+        );
+    }
+
+    // data.room_id is the UUID of the matching room
+    return data.room_id;
+}
