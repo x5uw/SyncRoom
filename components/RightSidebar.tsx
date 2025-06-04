@@ -231,9 +231,15 @@
 //   );
 // }
 
-// File: components/RightSidebar.tsx
 "use client";
-
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { createRoom } from "@/lib/services/roomService";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   Sheet,
@@ -242,15 +248,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { useRouter } from "next/navigation";
 
-// (You can leave yourRooms mock data as is)
+// mock data
 const yourRooms = [
   {
     id: "indie-vibes",
@@ -268,35 +267,40 @@ const yourRooms = [
 
 export default function RightSidebar() {
   const router = useRouter();
+
+  // form state
   const [roomName, setRoomName] = useState("");
   const [description, setDescription] = useState("");
-  const [access, setAccess] = useState<"public" | "private">("public");
+  const [access, setAccess] = useState<false | true>(false);
   const [password, setPassword] = useState("");
   const [joinCode, setJoinCode] = useState("");
 
-  // Instead of generating a new room ID, just navigate to /room/test-room
-  const handleCreate = (e: React.FormEvent) => {
+  // UI state for loading / error
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+
+  // Handle 'Creat Room' form submission
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!roomName.trim()) return;
+    setErrorMsg(null);
+    setIsLoading(true);
 
-    +   // For testing: always go to /room/test-room
-      router.push("/room/test-room");
+    try {
+      const newRoomId = await createRoom({
+        name: roomName.trim(),
+        description: description.trim(),
+        is_public: access,  // default: false (public)
+        password: access === true ? password : "",
+      });
 
-    // If you later hook up to Supabase, replace the above line with real logic:
-    //   • Insert a new row in “rooms”
-    //   • Grab the generated UUID
-    //   • router.push(`/room/${newRoomId}`)
-  };
+      // Redirect to the newly-created room page
+      router.push(`/room/${newRoomId}`);
 
-  // For Join, send them to /room/test-room as well:
-  const handleJoin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!joinCode.trim()) return;
-
-    +   router.push("/room/test-room");
-
-    // If you later want to test dynamic IDs, you can do:
-    // router.push(`/room/${joinCode.trim()}`);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to create room. Try again.");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -349,9 +353,9 @@ export default function RightSidebar() {
                     <Label htmlFor="access">Private Access</Label>
                     <Switch
                       id="access"
-                      checked={access === "private"}
+                      checked={access === false}
                       onCheckedChange={(checked) =>
-                        setAccess(checked ? "private" : "public")
+                        setAccess(checked ? true : false)
                       }
                     />
                   </div>
@@ -360,7 +364,7 @@ export default function RightSidebar() {
                   </p>
                 </div>
 
-                {access === "private" && (
+                {access === true && (
                   <div className="space-y-1">
                     <Label htmlFor="password">Password</Label>
                     <Input
@@ -389,27 +393,6 @@ export default function RightSidebar() {
         </CardContent>
       </Card>
 
-      {/* Join a Room Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Join a room</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-3">
-            Already have a room code? Paste it below.
-          </p>
-          <form onSubmit={handleJoin} className="space-y-2">
-            <Input
-              value={joinCode}
-              onChange={(e) => setJoinCode(e.target.value)}
-              placeholder="Enter Room ID"
-            />
-            <Button type="submit" className="w-full">
-              Join Room
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
 
       {/* Your Rooms (static links) */}
       <Card>
@@ -443,3 +426,18 @@ export default function RightSidebar() {
     </div>
   );
 }
+
+
+
+/**
+  // For Join, send them to /room/test-room as well:
+  const handleJoin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!joinCode.trim()) return;
+
+    +   router.push("/room/test-room");
+
+    // If you later want to test dynamic IDs, you can do:
+    // router.push(`/room/${joinCode.trim()}`);
+  };
+*/
