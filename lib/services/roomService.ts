@@ -59,14 +59,7 @@ export async function createRoom({
         // Generate a random 6-character join_id
         const joinId = generateJoinId();
 
-        // Build the payload for insertion
-        // const payload: Record<string, unknown> = {
-        //     name,
-        //     description,
-        //     access,
-        //     join_id: joinId,
-        // };
-
+        // payload to insert to the table
         const payload: Database["public"]["Tables"]["rooms"]["Insert"] = {
             name,
             description,
@@ -75,11 +68,6 @@ export async function createRoom({
             // Conditionally spread password field:
             ...(is_public === true ? { password } : {}),
         };
-
-        //TODO: Add password to the database
-        // if (access === "private") {
-        //     payload.password = password;
-        // }
 
         // Try inserting into "rooms". Return only room_id on success
         const { data, error } = await supabase
