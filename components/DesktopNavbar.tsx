@@ -10,7 +10,14 @@ import { supabaseServer } from "@/lib/supabase/server";
 import LoginLogoutButton from "./LoginLogout";
 
 export default async function DesktopNavbar() {
+
+
+  //FIXME: Try a fix to stop hanging on server-side rendering
+  //const supabase = supabaseServer();
   const supabase = await supabaseServer();
+
+
+
   const {
     data: { user },
   } = await supabase.auth.getUser();

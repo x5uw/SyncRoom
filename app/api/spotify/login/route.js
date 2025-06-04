@@ -36,7 +36,7 @@ import { supabaseServer } from '@/lib/supabase/server'; // Importing Supabase se
 
 export async function GET() {
     // Create a Supabase client instance for client-side operations
-    const supabase = supabaseServer();;
+    const supabase = await supabaseServer();
 
     // Function to handle login with Spotify
     const { data, error } = await supabase.auth.signInWithOAuth({
