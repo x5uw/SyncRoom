@@ -178,6 +178,8 @@ export default function RightSidebar() {
                   </div>
                 )}
 
+
+
                 <div className="flex gap-4 pt-2">
                   <Button type="submit" className="w-full">
                     Create
@@ -191,6 +193,32 @@ export default function RightSidebar() {
               </form>
             </SheetContent>
           </Sheet>
+        </CardContent>
+      </Card>
+
+      {/* Join a Room Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Join a room</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-3">
+            Already have a room code? Paste it below.
+          </p>
+          <form onSubmit={handleJoin} className="space-y-2">
+            <Input
+              value={joinCode}
+              onChange={(e) => setJoinCode(e.target.value)}
+              placeholder="Enter Room ID"
+              disabled={isJoining}
+            />
+            <Button type="submit" className="w-full" disabled={isJoining}>
+              {isJoining ? "Joining…" : "Join Room"}
+            </Button>
+          </form>
+          {joinError && (
+            <p className="text-sm text-red-500 mt-2">{joinError}</p>
+          )}
         </CardContent>
       </Card>
 
@@ -230,15 +258,3 @@ export default function RightSidebar() {
 
 
 
-/**
-  // For Join, send them to /room/test-room as well:
-  const handleJoin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!joinCode.trim()) return;
-
-    +   router.push("/room/test-room");
-
-    // If you later want to test dynamic IDs, you can do:
-    // router.push(`/room/${joinCode.trim()}`);
-  };
-*/
