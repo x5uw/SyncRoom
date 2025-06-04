@@ -199,6 +199,7 @@ export interface Database {
           },
           {
             foreignKeyName: "queue_tracks_room_id_fkey"
+
             columns: ["room_id"]
             referencedRelation: "rooms"
             referencedColumns: ["room_id"]
@@ -247,7 +248,6 @@ export interface Database {
           }
         ]
       }
-
       rooms: {
         Row: {
           /** uuid */
@@ -346,6 +346,7 @@ export interface Database {
           /** varchar */
           spotify_access_token: string | null
           /** varchar */
+
           spotify_refresh_token: string | null
           /** timestamptz DEFAULT now() */
           created_date: string
