@@ -28,6 +28,9 @@
  * 
  * Author: Manuel Rodriguez
  */
+export const dynamic = "force-dynamic";   // ← Skip static optimization
+export const runtime = "edge";            // or "nodejs"
+
 import { NextResponse } from 'next/server';             // Importing NextResponse to handle server responses
 import { supabaseServer } from '@/lib/supabase/server'; // Importing Supabase server-side client
 
