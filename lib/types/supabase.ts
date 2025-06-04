@@ -75,7 +75,7 @@ export interface Database {
           user_id: string
           /** timestamptz */
           left_at: string | null
-          /** character varying DEFAULT 'member' */
+          /** varchar DEFAULT 'member' */
           role: string | null
           /** timestamptz DEFAULT now() */
           joined_at: string
@@ -116,7 +116,7 @@ export interface Database {
         Row: {
           /** uuid */
           queue_track_id: string | null
-          /** character varying NOT NULL */
+          /** varchar NOT NULL */
           event_type: string
           /** integer */
           track_position: number | null
@@ -154,11 +154,11 @@ export interface Database {
         Row: {
           /** uuid */
           room_id: string | null
-          /** character varying NOT NULL */
+          /** varchar NOT NULL */
           track_url: string
-          /** character varying NOT NULL */
+          /** varchar NOT NULL */
           track_name: string
-          /** character varying NOT NULL */
+          /** varchar NOT NULL */
           artist_name: string
           /** uuid */
           added_by_user_id: string | null
@@ -199,6 +199,7 @@ export interface Database {
           },
           {
             foreignKeyName: "queue_tracks_room_id_fkey"
+
             columns: ["room_id"]
             referencedRelation: "rooms"
             referencedColumns: ["room_id"]
@@ -247,12 +248,11 @@ export interface Database {
           }
         ]
       }
-
       rooms: {
         Row: {
           /** uuid */
           host_id: string | null
-          /** character varying NOT NULL */
+          /** varchar NOT NULL */
           name: string
           /** text */
           description: string | null
@@ -270,8 +270,11 @@ export interface Database {
           created_at: string | null
           /** timestamptz DEFAULT now() */
           updated_at: string | null
-          /** character varying NOT NULL DEFAULT '' UNIQUE */
+          /** varchar NOT NULL DEFAULT '' UNIQUE */
           join_id: string
+          /** varchar NULLABLE */
+          password: string
+
         }
         Insert: {
           host_id?: string | null
@@ -285,6 +288,7 @@ export interface Database {
           created_at?: string | null  // DEFAULT now()
           updated_at?: string | null  // DEFAULT now()
           join_id?: string            // DEFAULT ''
+          password?: string | null
         }
         Update: {
           host_id?: string | null
@@ -298,6 +302,7 @@ export interface Database {
           created_at?: string | null
           updated_at?: string | null
           join_id?: string
+          password?: string | null
         }
         Relationships: []
       }
@@ -332,15 +337,16 @@ export interface Database {
         Row: {
           /** uuid NOT NULL DEFAULT gen_random_uuid() */
           user_id: string
-          /** character varying NOT NULL UNIQUE */
+          /** varchar NOT NULL UNIQUE */
           username: string
-          /** character varying NOT NULL UNIQUE */
+          /** varchar NOT NULL UNIQUE */
           email: string
-          /** character varying */
+          /** varchar */
           spotify_user_id: string | null
-          /** character varying */
+          /** varchar */
           spotify_access_token: string | null
-          /** character varying */
+          /** varchar */
+
           spotify_refresh_token: string | null
           /** timestamptz DEFAULT now() */
           created_date: string
