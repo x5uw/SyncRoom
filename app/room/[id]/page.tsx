@@ -14,6 +14,7 @@ export default function TestRoomPage() {
         listener_count: 42,
         is_favorited_by_current_user: false,
         stream_url: null, // or a real video URL if you want
+        is_liked_by_by_current_user: false
         // …any other fields RoomUI expects (e.g. created_at if used)…
     };
 
