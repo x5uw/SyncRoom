@@ -1,3 +1,7 @@
+/**
+ * /components/featuredRooms.tsx
+ */
+
 // "use client";
 
 // import { useRouter } from "next/navigation";

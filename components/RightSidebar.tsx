@@ -1,3 +1,8 @@
+
+/**
+ * /components/RightSidebar.tsx
+ */
+
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,16 +40,17 @@ const yourRooms = [
 export default function RightSidebar() {
   const router = useRouter();
 
-  // form state
-  const [roomName, setRoomName] = useState("");
-  const [description, setDescription] = useState("");
-  const [access, setAccess] = useState<false | true>(false);
-  const [password, setPassword] = useState("");
+  // Starting state variable for room creation form
+  const [roomName, setRoomName] = useState("");               // Room name input
+  const [description, setDescription] = useState("");         // Room description input
+  const [access, setAccess] = useState<false | true>(false);  // Access switch (false = public, true = private)
+  const [password, setPassword] = useState("");               // Password input (only used if access is private)
+
 
   // Join‐by‐code state
-  const [joinCode, setJoinCode] = useState("");
-  const [isJoining, setIsJoining] = useState(false);
-  const [joinError, setJoinError] = useState<string | null>(null);
+  const [joinCode, setJoinCode] = useState("");               // Join code input
+  const [isJoining, setIsJoining] = useState(false);          // Joining state
+  const [joinError, setJoinError] = useState<string | null>(null); 
 
   // UI state for loading / error
   const [isLoading, setIsLoading] = useState(false);
