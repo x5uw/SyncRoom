@@ -1,49 +1,92 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# SyncRoom
+
+**SyncRoom** is a collaborative, real-time music listening web application built using Spotify’s API. Users can join or create virtual “rooms” to listen to the same music together, chat, and manage a shared queue — all synchronized across devices.
+
+This project was developed as part of a university course and demonstrates full-stack integration, real-time communication, and third-party API integration.
+
+---
+
+## Features
+
+- **Real-Time Music Sync**  
+  All users in a room hear the same track at the same time via Spotify's Web Playback SDK.
+
+- **Spotify OAuth**  
+  Secure authentication and playback through users’ Spotify accounts.
+
+- **Live Chat**  
+  Communicate with other users in the room with a built-in chat interface.
+
+- **Collaborative Queue**  
+  Add, view, and manage songs in a shared room queue.
+
+- **Room Management**  
+  Create a DJ room or join an existing one to sync playback with friends.
+
+---
+
+## Tech Stack
+
+| Category       | Tech Used                                 |
+| -------------- | ----------------------------------------- |
+| **Frontend**   | Next.js, React, TypeScript                |
+| **Styling**    | Tailwind CSS, shadcn/ui                   |
+| **Backend**    | Supabase (auth, real-time database)       |
+| **Database**   | PostgreSQL (via Supabase)                 |
+| **Streaming**  | Spotify Web API, Spotify Web Playback SDK |
+| **Deployment** | Vercel                                    |
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### 1. Clone the Repository
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/x5uw/SyncRoom.git
+cd SyncRoom
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install Dependencies
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+# or
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### 3. Environment Variables
 
-## Learn More
+Create a `.env.local` file at the root of your project and fill in the following values:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 
--   [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
--   [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+SPOTIFY_CLIENT_ID=your-spotify-client-id
+SPOTIFY_CLIENT_SECRET=your-spotify-client-secret
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+> Don’t forget to whitelist `http://localhost:3000` and your deployed domain in your [Spotify Developer Dashboard](https://developer.spotify.com/dashboard/applications) under "Redirect URIs".
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 4. Run the Development Server
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+```bash
+pnpm dev
+# or
+npm run dev
+```
 
-[ ] fallback loading
-[ ] Edit
-[ ] Delete Message
-[ ] Realtime listener
-[ ] Pagination
+App will be available at: [http://localhost:3000](http://localhost:3000)
 
+---
 
+## Live Demo
 
-curl 'https://exdezzoyljbzksrsnfqc.supabase.co/rest/v1/profile?select=*' \
--H "apikey: SUPABASE_CLIENT_ANON_KEY" \
--H "Authorization: Bearer SUPABASE_CLIENT_ANON_KEY"
-          
+[https://syncroom.vercel.app](https://syncroom.vercel.app)
+
+---
