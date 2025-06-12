@@ -16,14 +16,13 @@ export default function Chat({
     currentUsername,
 }: ChatProps) {
     const supabase = supabaseBrowser();
-
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const scrollRef = useRef<HTMLDivElement>(null);
 
     // load history & subscribe
     useEffect(() => {
-        // load past messages
+        // fetch and load past messages
         const loadMessages = async () => {
             const { data, error } = await supabase
                 .from("chat_messages")
@@ -40,6 +39,7 @@ export default function Chat({
             }
             if (data) {
                 setMessages(
+                    // Map DB rows into Message
                     data.map((row) => ({
                         id: row.created_at,
                         user: row.users.username,
@@ -50,13 +50,14 @@ export default function Chat({
                         ),
                     }))
                 );
+                // Scroll to bottom after loading 
                 scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
             }
         };
 
         loadMessages();
 
-        // subscribe to new inserts
+        // subscribe to new inserts (real time messages)
         const channel = supabase
             .channel(`room-chat-${roomId}`)
             .on(
@@ -76,6 +77,7 @@ export default function Chat({
                             [], { hour: "2-digit", minute: "2-digit" }
                         ),
                     };
+                    // add new message and scroll (always show the most current)
                     setMessages((prev) => [...prev, msg]);
                     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
                 }
@@ -92,9 +94,9 @@ export default function Chat({
         e?.preventDefault();
         const text = newMessage.trim();
         if (!text) return;
-        setNewMessage("");
+        setNewMessage("");  // after insert, clear the input immediately for the next message
 
-        // update
+        // UI update
         const now = new Date();
         const optimistic: Message = {
             id: now.toISOString(),
@@ -116,7 +118,7 @@ export default function Chat({
                 user_id: currentUserId,
                 message: text,
             })
-            .select(); // returns the inserted row(s)
+            .select(); // returns the inserted row
 
         console.log("insert result:", { data, error });
         if (error) {
@@ -125,7 +127,7 @@ export default function Chat({
         }
     };
 
-    return (
+    return (// render UI via chatcard
         <ChatCard
             messages={messages}
             newMessage={newMessage}

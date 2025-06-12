@@ -1,5 +1,13 @@
-/** Hyobin Yook */
-
+/**
+ * Hyobin Yook
+ *
+ * JoinByCodePanel.tsx renders a card where users can enter a room code to join.
+ * If the room is found and is a private, user is asked for a password.
+ * If the room is found, is public, or user put in the correct passwrod for the room,
+ * the user is redirected to the room page.
+ * If room is not found by the join code or the user does not provide a correct password,
+ * error is displayed.
+ */
 "use client";
 
 import { useState } from "react";
