@@ -68,8 +68,8 @@ export default function RightSidebar() {
       const newRoomId = await createRoom({
         name: roomName.trim(),
         description: description.trim(),
-        is_public: access,  // default: false (public)
-        password: access === true ? password : "",
+        is_public: !access,  // default: false (public)
+        password: access ? password : "",
       });
 
       // Redirect to the newly-created room page
@@ -180,9 +180,9 @@ export default function RightSidebar() {
                     <Label htmlFor="access">Private Access</Label>
                     <Switch
                       id="access"
-                      checked={access === false}
+                      checked={access}
                       onCheckedChange={(checked) =>
-                        setAccess(checked ? true : false)
+                        setAccess(checked)
                       }
                     />
                   </div>
