@@ -11,13 +11,16 @@
 "use client";
 
 import Link from "next/link";                                          // Navigations between pages without full-reload (Dj profile load)
-import { useState } from "react";                                      // React hook (e.g. room favorited state)
-import ChatCard from "./ChatCard";                                     // ChatCard to be rendered on the page
+import { useState, useEffect } from "react";                           // React hook (e.g. room favorited state)
+import Chat from "./Chat";                                     // ChatCard to be rendered on the page
 import FavoriteButton from "./ui/FavoriteButton";
 import LikeButton from "./ui/LikeButton";
+import { useSession } from "@supabase/auth-helpers-react";
+import { supabaseBrowser } from "@/lib/supabase/browser";
 
 
-interface RoomRow {     // Room data to be received as a prop
+
+export interface RoomRow {     // Room data to be received as a prop
     id: string;
     name: string;
     description: string | null;
@@ -36,7 +39,45 @@ interface RoomUIProps {
     room: RoomRow;
 }
 
+// Define a type with minimal user info
+type AuthUser = {
+    id: string;
+    username: string;
+    email: string;
+};
+
+
 export default function RoomUI({ room }: RoomUIProps) {
+    const supabase = supabaseBrowser();
+    // A user is undefined (loading), null (not signed in), or AuthUser
+    const [user, setUser] = useState<AuthUser | null | undefined>(undefined);
+
+    // Fetch the logged in user once
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            if (user) {
+                setUser({
+                    id: user.id,
+                    // adjust based on where you store a username
+                    username: (user.user_metadata as any)?.username || user.email!,
+                    email: user.email!,
+                });
+            } else {
+                setUser(null);
+            }
+        });
+    }, [supabase]);
+
+    if (user === undefined) {
+        return <div>Loading…</div>;
+    }
+
+    if (user === null) {
+        return <div>Please log in to view this room.</div>;
+    }
+
+    const currentUserId = user.id;
+    const currentUsername = user.username;
 
     function onHeartToggle(newValue: boolean) {
         console.log(`Room ${room.id} favorited=`, newValue);
@@ -106,7 +147,10 @@ export default function RoomUI({ room }: RoomUIProps) {
 
                 {/* ─────────── Right Pane: ChatCard (1/3 width) ─────────── */}
                 <div className="flex-1 bg-gray-800 rounded-lg border border-gray-700 overflow-auto">
-                    <ChatCard />
+                    <Chat
+                        roomId={room.id}
+                        currentUserId={currentUserId}
+                        currentUsername={currentUsername} />
                 </div>
             </div>
         </div>
