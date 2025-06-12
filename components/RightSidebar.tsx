@@ -1,6 +1,8 @@
 
 /**
  * Hyobin Yook
+ * 
+ * /componenets/RightSidebar.tsx
  */
 
 "use client";

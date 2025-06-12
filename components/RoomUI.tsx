@@ -1,30 +1,33 @@
 /*
  * Author: Hyobin Yook
- * 
+ *
  * RoomUI.tsx is an UI component that renders main 'Room' view for listenrs.
  * It consist of a screen, room information panel, and live chat panel.
- * 
+ *
  * React hooks and event handlers function entirely in the browser ("use client")
- * 
+ *
  * NOTE: like_count and favorite_count may be added.
-*/
+ *
+ * /components/RoomUI.tsx
+ */
 "use client";
 
-import Link from "next/link";                                          // Navigations between pages without full-reload (Dj profile load)
-import { useState } from "react";                                      // React hook (e.g. room favorited state)
-import ChatCard from "./ChatCard";                                     // ChatCard to be rendered on the page
+import Link from "next/link"; // Navigations between pages without full-reload (Dj profile load)
+import { useState } from "react"; // React hook (e.g. room favorited state)
+import ChatCard from "./ChatCard"; // ChatCard to be rendered on the page
 import FavoriteButton from "./ui/FavoriteButton";
 import LikeButton from "./ui/LikeButton";
+import { Button } from "@/components/ui/button";
 
-
-interface RoomRow {     // Room data to be received as a prop
+interface RoomRow {
+    // Room data to be received as a prop
     id: string;
     name: string;
     description: string | null;
     host_id: string;
     host_name: string | null;
     listener_count: number;
-    // TODO: 
+    // TODO:
     // like_count: number;
     // favorite_cout: number;
     is_favorited_by_current_user: boolean;
@@ -34,19 +37,54 @@ interface RoomRow {     // Room data to be received as a prop
 
 interface RoomUIProps {
     room: RoomRow;
+    // ADDITION MADE BY MANUEL:
+    isHost?: boolean; // Needed for updated supabase db
 }
 
-export default function RoomUI({ room }: RoomUIProps) {
+export default function RoomUI({ room, isHost = false }: RoomUIProps) {
+    // ADDITION MADE BY MANUEL: isHost is needed for updated supabase db
+    // ADDITION MADE BY MANUEL: needed for local syncing
+    const [isSyncing, setIsSyncing] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
 
     function onHeartToggle(newValue: boolean) {
         console.log(`Room ${room.id} favorited=`, newValue);
-        // TODO: Maybe callback to inform the backend/database? 
-        //  await fetch('api/rooms/${room.id}/favorite'. {POST}, JSON.stringify({favorited:nnewvalue})),});
+        // TODO: Maybe callback to inform the backend/database?
+        //  await fetch('app/room/${room.id}/favorite'. {POST}, JSON.stringify({favorited:nnewvalue})),});
     }
 
     function onLikeToggle(newValue: boolean) {
         console.log(`Room ${room.id} liked =`, newValue);
         // TODO: Maybe callback to inform the database
+    }
+
+    // ADDITION MADE BY MANUEL: needed for local syncing
+    async function handleSyncPlayPause() {
+        setIsSyncing(true);
+        try {
+            // Keep host alive another 30 minutes
+            await fetch(`/room/${room.id}/activity`, {
+                method: "POST",
+            });
+
+            // Ask server to mirror host playback to local player
+            const response = await fetch(`/room/${room.id}/sync`, {
+                method: "POST",
+            });
+            const payload = await response.json();
+
+            if (response.ok && payload.success) {
+                setIsPlaying(true); // we just started playback
+            } else {
+                console.error("[ROOM-UI] Sync failed:", payload.error);
+                setIsPlaying(false);
+            }
+        } catch (networkError) {
+            console.error("[ROOM-UI] Network error syncing:", networkError);
+            setIsPlaying(false);
+        } finally {
+            setIsSyncing(false);
+        }
     }
 
     return (
@@ -73,7 +111,9 @@ export default function RoomUI({ room }: RoomUIProps) {
                     <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 flex justify-between items-start">
                         {/* ─── Left side: room name, host name, description ─── */}
                         <div className="space-y-1">
-                            <h1 className="text-2xl font-bold text-white">{room.name}</h1>
+                            <h1 className="text-2xl font-bold text-white">
+                                {room.name}
+                            </h1>
                             <Link
                                 href={`/profile/${room.host_id}`}
                                 className="block text-lg font-medium text-blue-400 hover:underline"
@@ -81,7 +121,9 @@ export default function RoomUI({ room }: RoomUIProps) {
                                 {room.host_name || "Unknown Host"}
                             </Link>
                             {room.description && (
-                                <p className="text-sm italic text-gray-300">{room.description}</p>
+                                <p className="text-sm italic text-gray-300">
+                                    {room.description}
+                                </p>
                             )}
                         </div>
 
@@ -92,7 +134,9 @@ export default function RoomUI({ room }: RoomUIProps) {
                             </span>
 
                             <FavoriteButton
-                                initialFavorited={room.is_favorited_by_current_user}
+                                initialFavorited={
+                                    room.is_favorited_by_current_user
+                                }
                                 onToggle={onHeartToggle}
                             />
 
@@ -102,6 +146,36 @@ export default function RoomUI({ room }: RoomUIProps) {
                             />
                         </div>
                     </div>
+
+                    {/* ▶▶▶ INSERTION: Play/Pause Sync Button for LISTENERS */}
+                    {!isHost && (
+                        <Button
+                            onClick={handleSyncPlayPause}
+                            disabled={isSyncing}
+                            className="w-full"
+                        >
+                            {isSyncing
+                                ? "Syncing…"
+                                : isPlaying
+                                ? "Pause (sync)"
+                                : "Play (sync)"}
+                        </Button>
+                    )}
+                    {/* ▶▶▶ INSERTION: Optional Host Pause Button */}
+                    {isHost && (
+                        <Button
+                            onClick={async () => {
+                                // If you have /api/spotify/player/pause:
+                                await fetch("/api/spotify/player/pause", {
+                                    method: "PUT",
+                                });
+                            }}
+                            variant="outline"
+                            className="w-full"
+                        >
+                            Pause Playback
+                        </Button>
+                    )}
                 </div>
 
                 {/* ─────────── Right Pane: ChatCard (1/3 width) ─────────── */}
