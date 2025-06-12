@@ -104,7 +104,7 @@ export default async function TestRoomPage() {
         is_favorited_by_current_user: false,
         stream_url: null, // or a real video URL if you want
         is_liked_by_by_current_user: false
-        // …any other fields RoomUI expects (e.g. created_at if used)…
+
     };
 
     const isHost = session?.user?.id === dummyRoom.host_id
