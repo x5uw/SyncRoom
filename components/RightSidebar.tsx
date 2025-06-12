@@ -117,6 +117,9 @@ export default function RightSidebar() {
           window.alert("Incorrect password. Please try again.");
           return;
         }
+        if (entry === null) {
+          return;
+        }
       }
       // If successful, redirect to `/room/[roomId]`
       router.push(`/room/${roomId}`);
