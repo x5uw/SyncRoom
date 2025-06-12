@@ -59,8 +59,8 @@ export async function middleware(request: NextRequest) {
 
 
 	//FIXME: Try a fix to stop hanging on server-side rendering
-    await supabase.auth.getSession();
-	//void supabase.auth.getSession().catch(() => {});
+    await supabase.auth.getUser();
+	//void supabase.auth.getUser().catch(() => {});
 
     return response;
 }

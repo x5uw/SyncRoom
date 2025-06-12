@@ -40,7 +40,8 @@ export const supabaseServer = () => {
 
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { Database } from "../types/supabase";
+//import { Database } from "../types/supabase";
+import { Database } from "@/lib/types/database.types";
 
 export const supabaseServer = () => {
   const cookieStore = cookies()

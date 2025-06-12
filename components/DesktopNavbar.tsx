@@ -18,9 +18,7 @@ export default async function DesktopNavbar() {
 
 
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
   return (
     <div className="hidden md:flex items-center space-x-4">

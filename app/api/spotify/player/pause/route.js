@@ -8,7 +8,7 @@
  * Example client call (inside a React client component):
  *   import { supabaseBrowser } from "@/lib/supabase/browser.js";
  *   const supabase = supabaseBrowser();
- *   const { data:{ session } } = await supabase.auth.getSession();
+ *   const { data:{ session } } = await supabase.auth.getUser();
  *   fetch("/api/spotify/player/pause", {
  *     method: "PUT",
  *     headers: {

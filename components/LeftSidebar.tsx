@@ -26,11 +26,14 @@ async function Sidebar() {
 
   if (!user) return <UnAuthenticatedSidebar />;
 
-  const usernameFallback = user.email?.split("@")[0];
-  const displayName =
-    user.user_metadata?.name ||
-    user.user_metadata?.full_name ||
-    usernameFallback;
+const usernameFallback = user.email?.split("@")[0];
+const displayName =
+  user.user_metadata?.display_name ||
+  usernameFallback;
+
+  const avatarUrl =
+  user.user_metadata?.images?.[0]?.url ||
+  "/avatar.png";
 
   return (
     <div className="sticky top-20">
@@ -42,9 +45,7 @@ async function Sidebar() {
               className="flex flex-col items-center justify-center"
             >
               <Avatar className="w-20 h-20 border-2 ">
-                <AvatarImage
-                  src={user.user_metadata?.avatar_url || "/avatar.png"}
-                />
+                <AvatarImage src={avatarUrl} alt={displayName} />
               </Avatar>
 
               <div className="mt-4 space-y-1">
