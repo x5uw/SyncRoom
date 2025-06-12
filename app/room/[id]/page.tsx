@@ -1,7 +1,6 @@
-// File: SyncRoom/app/room/test-room/page.tsx
 
 import NavBar from "@/components/NavBar";
-import RoomUI from "@/components/RoomUI"; // your existing UI component
+import RoomUI from "@/components/RoomUI"; //existing UI component
 
 export default function TestRoomPage() {
     // Hard-coded dummy data matching RoomUI’s prop shape:
@@ -15,7 +14,7 @@ export default function TestRoomPage() {
         is_favorited_by_current_user: false,
         stream_url: null, // or a real video URL if you want
         is_liked_by_by_current_user: false
-        // …any other fields RoomUI expects (e.g. created_at if used)…
+
     };
 
     return (
