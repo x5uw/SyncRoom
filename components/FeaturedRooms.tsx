@@ -1,3 +1,10 @@
+/**
+ * Hyobin Yook
+ *
+ * FeaturedRooms.tsx fetches up to six rooms from Supabase and displays them in a grid.
+ * Currently displays a placeholder album cover image for each room
+ *
+ */
 
 "use client";
 
@@ -7,7 +14,7 @@ import { Database } from "@/lib/types/supabase";
 import JoinButton from "@/components/ui/JoinButton";
 import Image from "next/image";
 
-// Temp Images for album covers
+// Static imports of placeholder album cover imgs
 import abbaCover from "@/components/images/abba.png";
 import bbCover from "@/components/images/bb.png";
 import garCover from "@/components/images/gar.png";
@@ -15,7 +22,7 @@ import scCover from "@/components/images/sc.png";
 import tsCover from "@/components/images/ts.png";
 import tswCover from "@/components/images/tsw.png";
 
-const COVERS = [ // One per each room
+const COVERS = [ // One per each room (6 total)
   abbaCover,
   bbCover,
   garCover,
@@ -24,7 +31,7 @@ const COVERS = [ // One per each room
   tswCover,
 ];
 
-// Define the shape we want for each card
+// Define each room card info to display
 interface FeaturedRoom {
   room_id: string;
   name: string;
@@ -33,10 +40,14 @@ interface FeaturedRoom {
 }
 
 export default function FeaturedRooms() {
+  // state: fetched rooms data
   const [rooms, setRooms] = useState<FeaturedRoom[]>([]);
+  // state: loading 
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  // error messages for debugging purpose
   const [error, setError] = useState<string | null>(null);
 
+  // fetch rooms once
   useEffect(() => {
     async function fetchRooms() {
       setIsLoading(true);
@@ -66,6 +77,7 @@ export default function FeaturedRooms() {
       }
 
       if (data) {
+        // map raw data to our card data
         const parsed: FeaturedRoom[] = data.map((row) => ({
           room_id: row.room_id,
           name: row.name,
@@ -101,7 +113,7 @@ export default function FeaturedRooms() {
     return <div className="text-center py-8">No featured rooms available.</div>;
   }
 
-  // — Successful fetch: render a 3×2 grid of room cards —
+  // fetch successful -> render a 3×2 grid of room cards 
   return (
     <div className="max-w-7xl mx-auto px-4">
       <h2 className="text-2xl font-bold mb-4">Featured Rooms</h2>

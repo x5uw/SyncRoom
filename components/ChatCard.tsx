@@ -1,4 +1,8 @@
-/** Hyobin Yook */
+/*
+ * Author: Hyobin Yook
+ * 
+ * ChatCard.tsx is responsible for live chat UI. Actual chat logic is in Chat.tsx
+ * */
 "use client";
 
 import { ArrowUp } from "lucide-react";

@@ -1,4 +1,10 @@
-/** Hyobin Yook */
+/**
+ * Hyobin Yook
+ *
+ * CreateRoomPanel.tsx renders a “Create Room” button that opens a slide over form.
+ * On submit, it calls the createRoom service, and redirects user to the new room page
+ * on successful room creation. 
+ */
 "use client";
 
 import { useState } from "react";
@@ -9,13 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import {
-    Sheet,
-    SheetTrigger,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { createRoom } from "@/lib/services/roomService";
 
 export default function CreateRoomPanel() {
@@ -27,6 +27,7 @@ export default function CreateRoomPanel() {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+    // room create handler
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMsg(null);
@@ -39,6 +40,8 @@ export default function CreateRoomPanel() {
                 is_public: !isPrivate,
                 password: isPrivate ? password : "",
             });
+
+            // navigate to the new room
             router.push(`/room/${newRoomId}`);
         } catch (err: any) {
             setErrorMsg(err.message || "Failed to create room. Try again.");
