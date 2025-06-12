@@ -33,7 +33,11 @@ export default function JoinButton({ roomId }: JoinButtonProps) {
                 window.alert("Incorrect password. Please try again.");
                 return;
             }
+            if (entry === null) {
+                return;
+            }
         }
+
         // redirect to the room page
         router.push(`/room/${roomId}`);
     }
