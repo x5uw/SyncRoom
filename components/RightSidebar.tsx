@@ -1,9 +1,10 @@
 
 /**
- * /components/RightSidebar.tsx
+ * Hyobin Yook
  */
 
 "use client";
+import { supabaseBrowser } from "@/lib/supabase/browser";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
@@ -50,7 +51,7 @@ export default function RightSidebar() {
   // Join‐by‐code state
   const [joinCode, setJoinCode] = useState("");               // Join code input
   const [isJoining, setIsJoining] = useState(false);          // Joining state
-  const [joinError, setJoinError] = useState<string | null>(null); 
+  const [joinError, setJoinError] = useState<string | null>(null);
 
   // UI state for loading / error
   const [isLoading, setIsLoading] = useState(false);
@@ -95,6 +96,28 @@ export default function RightSidebar() {
     try {
       // Call the service to get a room_id from the joinCode
       const roomId = await getRoomIdByJoinId(joinCode.trim());
+
+      // room is found but it's private
+      const supabase = supabaseBrowser();
+
+      // load room data
+      const { data: room, error } = await supabase
+        .from("rooms")
+        .select("is_public, password")
+        .eq("room_id", roomId)
+        .single();
+
+      if (error || !room) {
+        console.error("Error fetching room data:", error);
+        return;
+      }
+      if (!room.is_public) {
+        const entry = window.prompt("This room is private. Please enter the password to join:");
+        if (entry !== room.password) {
+          window.alert("Incorrect password. Please try again.");
+          return;
+        }
+      }
       // If successful, redirect to `/room/[roomId]`
       router.push(`/room/${roomId}`);
     } catch (err: any) {
