@@ -95,7 +95,7 @@ export async function POST(request, { params }) {
         );
     }
 
-    // — 5) Fetch host’s currently-playing
+    // Fetch host’s currently-playing
     let hostPlayback;
     try {
         hostPlayback = await fetchSpotify(
@@ -119,7 +119,7 @@ export async function POST(request, { params }) {
         );
     }
 
-    // —Build play body
+    // Build play body
     const playBody = {
         position_ms: hostPlayback.progress_ms,
         ...(hostPlayback.context?.uri

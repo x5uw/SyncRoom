@@ -1,7 +1,7 @@
 // File: /app/room/[id]/page.tsx
 
 import { supabaseServer } from "@/lib/supabase/server"
-import { Database } from "@/lib/types/database.types"   // ← your newly created types
+import { Database } from "@/lib/types/database.types"   // your newly created types
 import NavBar from "@/components/NavBar"
 import RoomUI from "@/components/RoomUI"
 
@@ -10,15 +10,15 @@ export default async function RoomPage({
 }: {
   params: { id: string }
 }) {
-  // ─────────── 1) Initialize Supabase ───────────
+  // Initialize Supabase
   const supabase = supabaseServer()
 
-  // ─────────── 2) Load the current user (for isHost) ───────────
+  // Load the current user (for isHost)
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // ─────────── 3) Fetch the entire room row ───────────
+  //Fetch the entire room row
   const { data, error: fetchError } = await supabase
     .from("rooms")
     .select()                       // ← no args = select all columns
@@ -33,10 +33,10 @@ export default async function RoomPage({
     )
   }
 
-  // ─────────── 4) Cast to your Table Row type ───────────
+  //Cast to Table Row type 
   const roomRow = data as Database["public"]["Tables"]["rooms"]["Row"]
 
-  // ─────────── 5) Destructure & rename snake_case → camelCase ───────────
+  
   const {
     room_id: id,
     name,
@@ -45,14 +45,14 @@ export default async function RoomPage({
     //listener_count: listenerCount = 0,
   } = roomRow
 
-  // ─────────── 6) (Optional) Fetch the host’s username ───────────
+  // fetch host username
   const { data: hostUser } = await supabase
     .from("users")
     .select("username")
     .eq("host_id", hostId!)
     .single()
 
-  // ─────────── 7) Build the object RoomUI expects ───────────
+  //Build the object RoomUI expects 
   const roomDetails = {
     id,
     name: name ?? "",
@@ -65,10 +65,10 @@ export default async function RoomPage({
     stream_url: null,
   }
 
-  // ─────────── 8) Decide if the current user is the host ───────────
+  // Decide if the current user is the host 
   const isHost = user?.id === hostId
 
-  // ─────────── 9) Render NavBar + RoomUI ───────────
+  //Render NavBar + RoomUI 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <NavBar />

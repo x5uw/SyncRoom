@@ -15,13 +15,13 @@ import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
 
 export async function POST(request, { params }) {
-    // — Log inside the handler, where params actually exists
+    // Log inside the handler, where params actually exists
     console.log("[ACTIVITY] 🔥 route hit for roomId=", params.id);
     const roomId = params.id;
 
     const supabase = supabaseServer();
 
-    // — Use getUser() to securely authenticate the user
+    // Use getUser() to securely authenticate the user
     const {
         data: { user },
         error: userError,
@@ -34,7 +34,7 @@ export async function POST(request, { params }) {
         );
     }
 
-    // — Verify that this user is actually the host of this room
+    // Verify that this user is actually the host of this room
     const { data: room, error: roomErr } = await supabase
         .from("rooms")
         .select("host_id")
@@ -58,7 +58,7 @@ export async function POST(request, { params }) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // — Update the last_active_at timestamp to now
+    // Update the last_active_at timestamp to now
     const { error: updateErr } = await supabase
         .from("rooms")
         .update({ last_active_at: new Date().toISOString() })
